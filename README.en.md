@@ -4,42 +4,74 @@
   <strong>English</strong> | <a href="./README.zh-CN.md">简体中文</a>
 </p>
 
-A local real-time fund estimation system with adaptive Web + Mobile UI.
-
-## Overview
-
-This project restores same-day fund estimation workflows for users after many platforms removed that feature. It is designed for local single-user usage with fast setup.
+A local real-time fund estimation system with adaptive Web + Mobile UI. It provides 60-second refresh during trading sessions, grouping, position snapshots, and history analysis.
 
 > Disclaimer: This project is for informational/demo use only and is **not** investment advice.
 
+## UI Preview
+
+| Desktop | Mobile |
+| --- | --- |
+| ![Dashboard Desktop](./docs/images/dashboard-desktop.png) | ![Dashboard Mobile](./docs/images/dashboard-mobile.png) |
+
+## How To Use
+
+### 1) Add a Fund
+
+- Click `+ Add Fund` in the top-right corner
+- Enter a 6-digit fund code (optional local note)
+- Optionally assign groups during creation
+
+![Add Fund Dialog](./docs/images/add-fund-dialog.png)
+
+### 2) Manage Groups
+
+- Click `Manage Groups`
+- Create, rename, delete, and reorder groups
+- Use `Edit Groups` on each card for multi-group assignment
+
+![Group Manage Dialog](./docs/images/group-manage-dialog.png)
+
+### 3) Edit Position
+
+- Click `Edit Position` on a card (or `Add Position` if empty)
+- Input `Shares` and `Cost Per Unit`
+- Save to compute market value, total PnL, and daily PnL
+
+![Position Dialog](./docs/images/position-dialog.png)
+
+### 4) History Analysis
+
+- Expand `History Analysis` at the bottom of a card
+- Switch ranges: `7D / 30D / 90D / 180D / 1Y`
+- Check return, max drawdown, high/low points
+
+![History Panel](./docs/images/history-panel.png)
+
+### 5) Search, Sort, and Privacy
+
+- Search by code (Enter to query immediately)
+- Sort by default / gain first / loss first
+- Toggle amount privacy from the header
+
 ## Features
 
-- Real-time refresh: 60s collection + UI update during CN market sessions.
-- Watchlist: Add/remove 6-digit fund codes.
-- Search & Sort: default / deltaDesc / deltaAsc.
-- Grouping: CRUD groups, reorder, multi-group mapping, ungrouped view.
-- Position snapshot: shares + cost per unit with market value, total PnL, daily PnL.
-- History analysis: 7D / 30D / 90D / 180D / 1Y return and drawdown.
-- Intraday chart: fixed trading-time X-axis, dynamic Y-axis.
-- Operational UX: empty/no-result/error/stale/loading states.
-- One-click launch: macOS and Windows bootstrap scripts.
-
-## Tech Stack
-
-- Next.js App Router + React 19 + TypeScript
-- Next.js Route Handlers (Node runtime)
-- SQLite (`better-sqlite3`)
-- In-process collector scheduler (60s)
-- EastMoney-based fund data source (compatible with AkShare source lineage)
+- Real-time refresh every 60s in CN trading sessions
+- Add/remove watchlist funds by 6-digit code
+- Group CRUD, reorder, multi-group mapping, ungrouped view
+- Position snapshot with value and PnL metrics
+- Multi-range historical NAV analysis
+- Empty/no-result/error/stale/loading state handling
+- One-click bootstrap for macOS and Windows
 
 ## Quick Start (Developers)
 
-### 1) Requirements
+### Requirements
 
 - Node.js 22+
 - npm 10+
 
-### 2) Install & Run
+### Install & Run
 
 ```bash
 npm install
@@ -48,7 +80,7 @@ npm run dev
 
 Open: [http://localhost:3000](http://localhost:3000)
 
-### 3) Test & Build
+### Test & Build
 
 ```bash
 npm test
@@ -60,19 +92,15 @@ npm run start
 
 ### macOS
 
-Double click:
-
-- `scripts/start-mac.command`
+Double click: `scripts/start-mac.command`
 
 ### Windows
 
-Double click:
+Double click: `scripts/start-windows.bat`
 
-- `scripts/start-windows.bat`
+Scripts automatically:
 
-Bootstrap scripts will:
-
-- install Node/npm when missing
+- install Node/npm if missing
 - install dependencies
 - build and launch service
 - open browser at `http://localhost:3000`
@@ -80,15 +108,13 @@ Bootstrap scripts will:
 ## Runtime Rules
 
 - Timezone: `Asia/Shanghai`
-- Trading sessions:
-  - `09:30-11:30`
-  - `13:00-15:00`
+- Trading sessions: `09:30-11:30`, `13:00-15:00`
 - Collector interval: `60s`
 - Stale threshold: `180s`
 - Retry delays: `2s`, `5s`
-- Retention: intraday points for `30 days`
+- Data retention: `30 days` for intraday points
 
-## Environment Variables
+## Environment Variable
 
 - `DATABASE_PATH` (optional)
   - default: `./fund-valuation.db`
@@ -99,69 +125,39 @@ Bootstrap scripts will:
 
 - `GET /api/v1/funds?query=&sortBy=&groupId=`
 - `POST /api/v1/funds`
-  - body: `{ "code": "161725", "groupIds": ["<groupId>"] }`
 - `DELETE /api/v1/funds/{code}`
 - `PUT /api/v1/funds/{code}/groups`
-  - body: `{ "groupIds": ["<groupId>"] }`
 - `GET /api/v1/funds/{code}/trend?date=YYYY-MM-DD`
 - `GET /api/v1/funds/{code}/history?range=7D|30D|90D|180D|1Y`
 
 ### Position
 
 - `PUT /api/v1/funds/{code}/position`
-  - body: `{ "shares": 1280.5, "costPerUnit": 2.18 }`
 - `DELETE /api/v1/funds/{code}/position`
 
 ### Groups
 
 - `GET /api/v1/groups`
 - `POST /api/v1/groups`
-  - body: `{ "name": "半导体" }`
 - `PATCH /api/v1/groups/{id}`
-  - body: `{ "name": "半导体精选" }`
 - `DELETE /api/v1/groups/{id}`
 - `PUT /api/v1/groups/reorder`
-  - body: `{ "ids": ["idA", "idB"] }`
 
 ### System
 
 - `GET /api/v1/system/status`
 
-## Project Structure
+## Tech Stack
 
-```text
-app/
-  api/v1/...                 # REST API routes
-  globals.css                # Global tokens/styles
-components/
-  dashboard.tsx              # Main dashboard
-  sparkline.tsx              # Intraday chart
-  history-line-chart.tsx     # History analysis chart
-lib/
-  db.ts                      # SQLite schema + queries
-  collector.ts               # 60s collector + retry
-  provider/eastmoney.ts      # Data provider
-scripts/
-  start-mac.command
-  start-windows.bat
-  bootstrap-and-start.sh
-  bootstrap-and-start.ps1
-tests/
-  *.test.ts                  # Unit + integration tests
-fund-valuation-demo.pen      # Pencil high-fidelity design file
-```
+- Next.js App Router + React 19 + TypeScript
+- Next.js Route Handlers (Node runtime)
+- SQLite (`better-sqlite3`)
+- In-process 60-second collector
+- EastMoney-based provider (same source lineage as AkShare endpoint)
 
 ## Contributing
 
-Please read [CONTRIBUTING.en.md](./CONTRIBUTING.en.md) before opening a PR.
-
-## Roadmap
-
-- [ ] Docker deployment support
-- [ ] Optional SSE/WebSocket mode
-- [ ] finshare extension for richer ETF/LOF data
-- [ ] Multi-user auth
-- [ ] Advanced portfolio analytics
+Please read [CONTRIBUTING.en.md](./CONTRIBUTING.en.md).
 
 ## License
 

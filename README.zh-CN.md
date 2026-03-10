@@ -4,42 +4,74 @@
   <a href="./README.en.md">English</a> | <strong>简体中文</strong>
 </p>
 
-一个本地运行的基金实时估值系统，支持 Web + Mobile 自适应界面。
-
-## 项目简介
-
-本项目用于在基金平台下线“当日估值”后，为用户提供本地实时估值参考，默认面向单用户本地部署。
+一个本地运行的基金实时估值系统，支持 Web + Mobile 自适应界面，提供交易时段 60 秒级估值更新、分组管理、持仓快照与历史分析能力。
 
 > 免责声明：本项目仅用于信息展示与演示，不构成投资建议。
+
+## 界面预览
+
+| 桌面端 | 移动端 |
+| --- | --- |
+| ![Dashboard Desktop](./docs/images/dashboard-desktop.png) | ![Dashboard Mobile](./docs/images/dashboard-mobile.png) |
+
+## 操作说明
+
+### 1) 添加基金
+
+- 点击右上角 `+ 添加基金`
+- 输入 6 位基金代码（可选填写本地备注）
+- 可在添加时直接勾选分组
+
+![Add Fund Dialog](./docs/images/add-fund-dialog.png)
+
+### 2) 分组管理
+
+- 点击 `管理分组` 打开分组面板
+- 支持新建、重命名、删除、顺序调整
+- 卡片的 `编辑分组` 支持多分组归属
+
+![Group Manage Dialog](./docs/images/group-manage-dialog.png)
+
+### 3) 持仓编辑
+
+- 在卡片中点击 `编辑持仓`（无持仓时点击 `录入持仓`）
+- 录入 `持有份额` 与 `单位持仓成本`
+- 保存后自动计算持仓市值、累计盈亏、当日盈亏
+
+![Position Dialog](./docs/images/position-dialog.png)
+
+### 4) 历史分析
+
+- 点击卡片底部 `历史分析` 展开
+- 支持 `7D / 30D / 90D / 180D / 1Y` 切换
+- 展示区间收益、最大回撤、区间高低点
+
+![History Panel](./docs/images/history-panel.png)
+
+### 5) 搜索、排序与隐私模式
+
+- 搜索：输入基金代码关键词，支持回车立即查询
+- 排序：默认 / 涨幅优先 / 跌幅优先
+- 隐私：点击头部 `金额隐私` 可一键隐藏金额字段
 
 ## 功能特性
 
 - 实时刷新：交易时段按 60 秒采集与更新
 - 自选基金：支持添加/删除 6 位基金代码
-- 搜索与排序：默认 / 涨幅优先 / 跌幅优先
 - 分组管理：分组 CRUD、重排、多分组归属、未分组视图
-- 持仓快照：录入份额 + 成本，展示市值、累计盈亏、当日盈亏
-- 历史分析：7D / 30D / 90D / 180D / 1Y 区间收益与回撤
-- 日内曲线：固定交易时间坐标轴、动态 Y 轴
+- 持仓快照：录入份额 + 成本，展示市值与盈亏
+- 历史分析：多区间净值分析与回撤指标
 - 状态反馈：空态、无结果、错误、延迟、加载提示
 - 一键启动：macOS / Windows 自动安装依赖并启动
 
-## 技术栈
+## 快速开始（开发者）
 
-- Next.js App Router + React 19 + TypeScript
-- Next.js Route Handlers（Node runtime）
-- SQLite（`better-sqlite3`）
-- 进程内定时采集（60s）
-- 东方财富数据源（与 AkShare 同源链路）
-
-## 开发者快速开始
-
-### 1）环境要求
+### 环境要求
 
 - Node.js 22+
 - npm 10+
 
-### 2）安装并运行
+### 安装运行
 
 ```bash
 npm install
@@ -48,7 +80,7 @@ npm run dev
 
 访问：[http://localhost:3000](http://localhost:3000)
 
-### 3）测试与构建
+### 测试与构建
 
 ```bash
 npm test
@@ -56,19 +88,15 @@ npm run build
 npm run start
 ```
 
-## 普通用户一键启动
+## 一键启动（普通用户）
 
 ### macOS
 
-双击：
-
-- `scripts/start-mac.command`
+双击：`scripts/start-mac.command`
 
 ### Windows
 
-双击：
-
-- `scripts/start-windows.bat`
+双击：`scripts/start-windows.bat`
 
 脚本会自动：
 
@@ -80,12 +108,10 @@ npm run start
 ## 运行规则
 
 - 时区：`Asia/Shanghai`
-- 交易时段：
-  - `09:30-11:30`
-  - `13:00-15:00`
+- 交易时段：`09:30-11:30`、`13:00-15:00`
 - 采集间隔：`60s`
 - 延迟阈值：`180s`
-- 失败重试：`2s`、`5s`
+- 重试回退：`2s`、`5s`
 - 数据保留：日内点位保留 `30 天`
 
 ## 环境变量
@@ -99,69 +125,39 @@ npm run start
 
 - `GET /api/v1/funds?query=&sortBy=&groupId=`
 - `POST /api/v1/funds`
-  - body: `{ "code": "161725", "groupIds": ["<groupId>"] }`
 - `DELETE /api/v1/funds/{code}`
 - `PUT /api/v1/funds/{code}/groups`
-  - body: `{ "groupIds": ["<groupId>"] }`
 - `GET /api/v1/funds/{code}/trend?date=YYYY-MM-DD`
 - `GET /api/v1/funds/{code}/history?range=7D|30D|90D|180D|1Y`
 
 ### 持仓
 
 - `PUT /api/v1/funds/{code}/position`
-  - body: `{ "shares": 1280.5, "costPerUnit": 2.18 }`
 - `DELETE /api/v1/funds/{code}/position`
 
 ### 分组
 
 - `GET /api/v1/groups`
 - `POST /api/v1/groups`
-  - body: `{ "name": "半导体" }`
 - `PATCH /api/v1/groups/{id}`
-  - body: `{ "name": "半导体精选" }`
 - `DELETE /api/v1/groups/{id}`
 - `PUT /api/v1/groups/reorder`
-  - body: `{ "ids": ["idA", "idB"] }`
 
 ### 系统
 
 - `GET /api/v1/system/status`
 
-## 项目结构
+## 技术栈
 
-```text
-app/
-  api/v1/...                 # REST API routes
-  globals.css                # 全局样式与设计 token
-components/
-  dashboard.tsx              # 主页面
-  sparkline.tsx              # 日内曲线
-  history-line-chart.tsx     # 历史分析曲线
-lib/
-  db.ts                      # SQLite schema + 查询
-  collector.ts               # 60s 采集 + 重试
-  provider/eastmoney.ts      # 数据源适配
-scripts/
-  start-mac.command
-  start-windows.bat
-  bootstrap-and-start.sh
-  bootstrap-and-start.ps1
-tests/
-  *.test.ts                  # 单元与集成测试
-fund-valuation-demo.pen      # Pencil 高保真设计稿
-```
+- Next.js App Router + React 19 + TypeScript
+- Next.js Route Handlers（Node runtime）
+- SQLite（`better-sqlite3`）
+- 进程内定时采集（60s）
+- 东方财富数据源（与 AkShare 同源链路）
 
 ## 贡献
 
-请在提交 PR 前阅读 [CONTRIBUTING.zh-CN.md](./CONTRIBUTING.zh-CN.md)。
-
-## 路线图
-
-- [ ] 支持 Docker 部署
-- [ ] 可选 SSE/WebSocket 推送
-- [ ] 集成 finshare 增强 ETF/LOF 分钟数据
-- [ ] 多用户权限体系
-- [ ] 更完整的持仓分析能力
+请先阅读 [CONTRIBUTING.zh-CN.md](./CONTRIBUTING.zh-CN.md)。
 
 ## 许可证
 
