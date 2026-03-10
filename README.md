@@ -1,46 +1,63 @@
-# Fund Estimation System
+# Fund Estimation System / 基金实时估值系统
 
-一个面向中国基金用户的本地实时估值系统（Web + Mobile 自适应）。
+A local real-time fund estimation system with adaptive Web + Mobile UI.
 
-> 目标：替代基金平台已下线的“当日估值”能力，帮助用户在买入/卖出前做更直观的盘中参考。
+一个本地运行的基金实时估值系统，支持 Web + Mobile 自适应界面。
 
-## Features
+---
 
-- 实时估值：按 60 秒周期刷新（交易时段）
-- 自选基金：添加/删除 6 位基金代码
-- 搜索 + 排序：默认 / 涨幅优先 / 跌幅优先
-- 手动分组：分组 CRUD、重排、多分组归属、未分组视图
-- 持仓快照：录入份额与成本，展示持仓市值、累计盈亏、当日盈亏
-- 历史分析：7D / 30D / 90D / 180D / 1Y 区间收益与回撤
-- 日内走势：固定交易时段时间轴（含中间刻度），动态 Y 轴
-- 状态反馈：空态、无结果、错误、延迟、局部刷新提示
-- 跨平台一键启动：macOS / Windows 自动安装依赖并启动
+## Overview / 项目简介
 
-## Tech Stack
+**EN**: This project restores same-day fund estimation workflows for users after many platforms removed that feature. It is designed for local single-user usage with fast setup.
 
-- Frontend: Next.js App Router, React 19, TypeScript
-- Backend: Next.js Route Handlers (Node runtime)
-- Database: SQLite (`better-sqlite3`)
-- Scheduler: in-process collector loop (60s)
-- Data source: EastMoney（与 AkShare `fund_value_estimation_em` 同源）
+**中文**：本项目用于在基金平台下线“当日估值”后，为用户提供本地实时估值参考，默认面向单用户本地部署。
 
-## Quick Start (Developer)
+> Disclaimer / 免责声明: This project is for informational/demo use only and is **not** investment advice.  
+> 本项目仅用于信息展示与演示，不构成投资建议。
 
-### 1) Requirements
+---
+
+## Features / 功能特性
+
+- **Real-time refresh / 实时刷新**: 60s collection + UI update during CN market sessions.
+- **Watchlist / 自选基金**: Add/remove 6-digit fund codes.
+- **Search & Sort / 搜索与排序**: default / deltaDesc / deltaAsc.
+- **Grouping / 分组管理**: CRUD groups, reorder, multi-group mapping, ungrouped view.
+- **Position snapshot / 持仓快照**: shares + cost per unit with market value, total PnL, daily PnL.
+- **History analysis / 历史分析**: 7D / 30D / 90D / 180D / 1Y return and drawdown.
+- **Intraday chart / 日内曲线**: fixed trading-time X-axis, dynamic Y-axis.
+- **Operational UX / 状态反馈**: empty/no-result/error/stale/loading states.
+- **One-click launch / 一键启动**: macOS and Windows bootstrap scripts.
+
+---
+
+## Tech Stack / 技术栈
+
+- Next.js App Router + React 19 + TypeScript
+- Next.js Route Handlers (Node runtime)
+- SQLite (`better-sqlite3`)
+- In-process collector scheduler (60s)
+- EastMoney-based fund data source (compatible with AkShare source lineage)
+
+---
+
+## Quick Start (Developers) / 开发者快速开始
+
+### 1) Requirements / 环境要求
 
 - Node.js 22+
 - npm 10+
 
-### 2) Install & Run
+### 2) Install & Run / 安装运行
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open: [http://localhost:3000](http://localhost:3000)
+Open / 访问: [http://localhost:3000](http://localhost:3000)
 
-### 3) Test & Build
+### 3) Test & Build / 测试与构建
 
 ```bash
 npm test
@@ -48,44 +65,52 @@ npm run build
 npm run start
 ```
 
-## One-Click Start (Non-Technical Users)
+---
+
+## One-Click Start (Users) / 普通用户一键启动
 
 ### macOS
 
-Double click:
+Double click / 双击:
 
 - `scripts/start-mac.command`
 
 ### Windows
 
-Double click:
+Double click / 双击:
 
 - `scripts/start-windows.bat`
 
-These launchers will:
+Bootstrap scripts will / 启动脚本会自动：
 
-- auto-install Node/npm when missing
-- install project dependencies
-- build and start service
-- open browser on `http://localhost:3000`
+- install Node/npm when missing / 缺失时自动安装 Node/npm
+- install dependencies / 安装依赖
+- build and launch service / 构建并启动服务
+- open browser at `http://localhost:3000` / 自动打开浏览器
 
-## Runtime Behavior
+---
 
-- Timezone: `Asia/Shanghai`
-- Collection window:
-  - 09:30-11:30
-  - 13:00-15:00
-- Refresh interval: 60s
-- Stale threshold: 180s (front-end shows delay hint)
-- Retry on failures: 2s, then 5s
-- Data retention: intraday points kept for 30 days
+## Runtime Rules / 运行规则
 
-## Environment Variables
+- Timezone / 时区: `Asia/Shanghai`
+- Trading sessions / 交易时段:
+  - `09:30-11:30`
+  - `13:00-15:00`
+- Collector interval / 采集间隔: `60s`
+- Stale threshold / 延迟阈值: `180s`
+- Retry delays / 重试回退: `2s`, `5s`
+- Retention / 数据保留: intraday points for `30 days`（日内点位保留 30 天）
 
-- `DATABASE_PATH` (optional)
+---
+
+## Environment Variables / 环境变量
+
+- `DATABASE_PATH` (optional / 可选)
   - default: `./fund-valuation.db`
 
-## API Overview (v1)
+---
+
+## API (v1)
 
 ### Funds
 
@@ -119,55 +144,51 @@ These launchers will:
 
 - `GET /api/v1/system/status`
 
-## Project Structure
+---
+
+## Project Structure / 项目结构
 
 ```text
 app/
   api/v1/...                 # REST API routes
-  globals.css                # UI tokens and global styles
+  globals.css                # Global tokens/styles
 components/
-  dashboard.tsx              # Main dashboard page
+  dashboard.tsx              # Main dashboard
   sparkline.tsx              # Intraday chart
   history-line-chart.tsx     # History analysis chart
 lib/
   db.ts                      # SQLite schema + queries
-  collector.ts               # 60s collector + retries
-  provider/eastmoney.ts      # Data provider adapters
-  trading.ts                 # Trading session logic
+  collector.ts               # 60s collector + retry
+  provider/eastmoney.ts      # Data provider
 scripts/
   start-mac.command
   start-windows.bat
   bootstrap-and-start.sh
   bootstrap-and-start.ps1
 tests/
-  *.test.ts                  # unit + integration tests
+  *.test.ts                  # Unit + integration tests
 fund-valuation-demo.pen      # Pencil high-fidelity design file
 ```
 
-## Roadmap
+---
 
-- [ ] Docker image + compose deployment
-- [ ] Optional SSE/WebSocket push
-- [ ] finshare integration for richer ETF/LOF minute data
-- [ ] Multi-user auth & access control
-- [ ] More portfolio analytics (cost averaging, cashflow-based PnL)
+## Contributing / 参与贡献
 
-## Contributing
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening a PR.  
+提交 PR 前请先阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
-欢迎提交 Issue / PR：
+---
 
-1. Fork this repo
-2. Create feature branch
-3. Add or update tests
-4. Ensure `npm test` and `npm run build` pass
-5. Open Pull Request
+## Roadmap / 路线图
 
-## Disclaimer
+- [ ] Docker deployment support / Docker 部署支持
+- [ ] Optional SSE/WebSocket mode / 可选 SSE/WebSocket 推送
+- [ ] finshare extension for richer ETF/LOF data / finshare 增强 ETF/LOF 数据
+- [ ] Multi-user auth / 多用户与权限
+- [ ] Advanced portfolio analytics / 更完整的持仓分析能力
 
-本项目仅用于信息展示与研究演示，不构成任何投资建议。基金投资有风险，决策请基于你自己的独立判断。
+---
 
-## License
+## License / 开源许可证
 
-当前仓库尚未添加正式开源许可证。
-
-如果你计划公开分发或商用，建议先补充 `LICENSE`（如 MIT/Apache-2.0）。
+MIT License. See [LICENSE](./LICENSE).
